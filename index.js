@@ -1,1 +1,6 @@
-console.log("Hola, Node.js está funcionando!");
+import {config} from "dotenv";
+import { initServer } from "./configs/server.js";
+
+
+config()
+initServer()

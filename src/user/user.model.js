@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import { Schema, model } from "mongoose";
 
 const userSchema = Schema({
@@ -40,7 +39,7 @@ const userSchema = Schema({
                 return cursos.length <= 3; // Permite máximo 3 cursos
             },
             message: "Un usuario solo puede estar en un máximo de 3 cursos."
-        }
+        },
     role:{
         type: String,
         required: true,
@@ -50,6 +49,7 @@ const userSchema = Schema({
         type: Boolean,
         default: true
     }
+}
 
 },
     {
