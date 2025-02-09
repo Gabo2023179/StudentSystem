@@ -33,13 +33,8 @@ const userSchema = Schema({
         maxLength: 8
     },
     cursos: {
-        type: [String], // Un usuario puede tener varios cursos (máximo 3)
-        validate: {
-            validator: function (cursos) {
-                return cursos.length <= 3; // Permite máximo 3 cursos
-            },
-            message: "Un usuario solo puede estar en un máximo de 3 cursos."
-        },
+        type: [String]
+    },
     role:{
         type: String,
         required: true,
@@ -49,16 +44,17 @@ const userSchema = Schema({
         type: Boolean,
         default: true
     }
-}
+
 
 },
     {
     versionKey: false,
     timeStamps: true
     }
+    
 )
 
-serSchema.methods.toJson = function(){
+userSchema.methods.toJson = function(){
     const { password, _id, ...user } = this.toObject()
     user.uid = _id // uid = user identification
     return user

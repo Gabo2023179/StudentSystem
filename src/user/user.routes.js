@@ -1,15 +1,19 @@
 import { Router } from "express";
-import { getUserByIdValidator, deleteUserValidator, updatePasswordValidator } from "../middlewares/check-validator.js";
-import { getUserById, getUsers, deleteUser, updatePassword } from "./user.controller.js";
+import {getUserByIdValidator, deleteUserValidator, updatePasswordValidator, registerValidator, courseValidator } from "../middlewares/check-validator.js"; // Asegúrate de que el nombre del archivo de validadores sea correcto
+import {getUserById, getUsers, deleteUser,updatePassword,registerUser,assignCourse,getCourses,updateUser } from "./user.controller.js";
 
-const router = Router()
+const router = Router();
 
-router.get("/findUser/:uid", getUserByIdValidator, getUserById)
+// Rutas para usuarios
+router.post("/register", registerValidator, courseValidator, registerUser);
+router.get("/findUser/:uid", getUserByIdValidator, getUserById);
+router.get("/", getUsers);
+router.delete("/deleteUser/:uid", deleteUserValidator, deleteUser);
+router.patch("/updatePassword/:uid", updatePasswordValidator, updatePassword);
+router.patch("/updateUser/:uid", updateUser); // Ruta para actualizar el perfil del usuario
 
-router.get("/", getUsers)
+// Rutas para cursos
+router.post("/assignCourse/:uid", courseValidator, assignCourse); // Asignar curso a estudiante
+router.get("/getCourses/:uid", getCourses); // Obtener cursos asignados
 
-router.delete("/deleteUser/:uid", deleteUserValidator, deleteUser)
-
-router.patch("/updatePassword/:uid", updatePasswordValidator, updatePassword) // patch solo actualiza solo un elemento un put es un n cantidad de elementos
-
-export default router
+export default router;
