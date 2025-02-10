@@ -24,8 +24,12 @@ export const registerValidator = [
         minNumbers: 1,
         minSymbols: 0
     }),*/
-    body("role", "El rol es obligatorio").not().isEmpty(),
-    body("role", "Rol no válido").isIn(["TEACHER_ROLE", "STUDENT_ROLE"]),
+    
+    body("role")
+    .optional() // 🔹 Permite que role no esté presente
+    .isIn(["TEACHER_ROLE", "STUDENT_ROLE"])
+    .withMessage("Rol no válido, debe ser 'TEACHER_ROLE' o 'STUDENT_ROLE'"),
+
     validarCampos
 ];
 

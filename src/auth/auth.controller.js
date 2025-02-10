@@ -1,75 +1,78 @@
 import User from "../user/user.model.js";
 import { hash, verify } from "argon2";
-import { generateJWT } from "../helpers/generate-jwt.js";
 
+// Registro de usuario
 export const register = async (req, res) => {
     try {
         const data = req.body;
-        let profilePicture = req.file ? req.file.filename : null;
+        
+        // Asignar STUDENT_ROLE si el usuario no especifica un rol
+        if (!data.role) {
+            data.role = "STUDENT_ROLE";
+        }
+        
+        // Validar que el rol solo pueda ser TEACHER_ROLE o STUDENT_ROLE
+        if (!["TEACHER_ROLE", "STUDENT_ROLE"].includes(data.role)) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Rol no válido. Debe ser 'TEACHER_ROLE' o 'STUDENT_ROLE'."
+            });
+        }
+
         const encryptedPassword = await hash(data.password);
-
         data.password = encryptedPassword;
-        data.profilePicture = profilePicture;
-        data.role = data.role || "STUDENT_ROLE"; // Asigna STUDENT_ROLE por defecto
 
-        // Validar que los estudiantes no se registren con más de 3 cursos
-        if (data.role === "STUDENT_ROLE" && data.cursos && data.cursos.length > 3) {
-            return res.status(400).json({
-                message: "Un alumno solo puede estar en un máximo de 3 cursos"
+        if (data.role === "STUDENT_ROLE" && Array.isArray(data.cursos) && data.cursos.length > 3) {
+            return res.status(400).json({ 
+                message: "Un alumno solo puede estar en un máximo de 3 cursos" 
             });
         }
 
         const user = await User.create(data);
-        return res.status(201).json({
-            message: "User has been registered",
-            name: user.name,
-            email: user.email
+        return res.status(201).json({ 
+            message: "Usuario registrado exitosamente",
+            name: user.name, 
+            email: user.email,
+            role: user.role
         });
     } catch (err) {
-        console.log(err.message);
-        return res.status(500).json({
-            message: "User registration failed",
-            error: err.message
+        return res.status(500).json({ 
+            message: "Error al registrar usuario",
+            error: err.message 
         });
     }
 };
 
+// Inicio de sesión
 export const login = async (req, res) => {
     const { email, username, password } = req.body;
     try {
-        const user = await User.findOne({
-            $or: [{ email: email }, { username: username }]
-        });
+        const user = await User.findOne({ $or: [{ email }, { username }] });
 
         if (!user) {
-            return res.status(404).json({
-                message: "Credenciales invalidas",
-                error: "Username o email no existe en la base de datos"
+            return res.status(404).json({ 
+                message: "Credenciales inválidas",
+                error: "Usuario no encontrado" 
             });
         }
 
         const validPassword = await verify(user.password, password);
-
         if (!validPassword) {
             return res.status(400).json({
-                message: "Credenciales invalidas",
-                error: "Contrasena incorrecta"
+                 message: "Credenciales inválidas",
+                 error: "Contraseña incorrecta" 
             });
         }
 
-        const token = await generateJWT(user.id, user.email, user.role); // Incluye el rol en el JWT
-        return res.status(200).json({
+        return res.status(200).json({ 
             message: "Inicio de sesión exitoso",
-            userDetails: {
-                token,
-                profilePicture: user.profilePicture
-            }
+            user 
         });
     } catch (err) {
-        return res.status(500).json({
+        return res.status(500).json({ 
             success: false,
             message: "Error en inicio de sesión",
-            error: err.message
+            error: err.message 
         });
     }
 };

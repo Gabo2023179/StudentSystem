@@ -21,8 +21,8 @@ const middlewares = (app) => {
 };
 
 const routes = (app) => {
-    app.use("/adoptionSystem/v1/auth", authRoutes);
-    app.use("/adoptionSystem/v1/user", userRoutes);
+    app.use("/studentSystem/v1/auth", authRoutes);
+    app.use("/studentSystem/v1/user", userRoutes);
 };
 
 const conectarDB = async () => {
@@ -34,12 +34,12 @@ const conectarDB = async () => {
     }
 };
 
-export const initServer = () => {
+export const initServer = async () => { // <-- Agregar "async"
     const app = express();
     try {
-        conectarDB(); // Conectar a la base de datos primero
-        middlewares(app); // Configurar middlewares
-        routes(app); // Configurar rutas
+        await conectarDB(); // <-- Asegurar que la conexión a MongoDB termine antes de seguir
+        middlewares(app);
+        routes(app);
         app.listen(process.env.PORT, () => {
             console.log(`Server running on port ${process.env.PORT}`);
         });
